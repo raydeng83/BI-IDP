@@ -1,0 +1,8 @@
+{
+  "properties": [
+    {
+      "name": "ldap.urls",
+      "type": "java.lang.String",
+      "description": "Description for ldap.urls."
+  }
+] }
