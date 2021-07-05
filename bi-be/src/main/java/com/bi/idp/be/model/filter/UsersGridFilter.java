@@ -1,7 +1,6 @@
-package com.bi.idp.be.filter;
+package com.bi.idp.be.model.filter;
 
 public class UsersGridFilter extends BaseFilter {
-    //we violate naming convention because we use this names in ng2SmartTable
     private String filterByfirstName;
     private String filterBylastName;
     private String filterBylogin;

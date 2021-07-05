@@ -1,6 +1,6 @@
 package com.bi.idp.be.builder;
 
-import com.bi.idp.be.filter.BaseFilter;
+import com.bi.idp.be.model.filter.BaseFilter;
 import com.bi.idp.be.model.SortOrder;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;

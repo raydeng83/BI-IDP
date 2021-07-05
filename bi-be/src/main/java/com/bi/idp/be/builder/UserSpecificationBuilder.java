@@ -1,6 +1,6 @@
 package com.bi.idp.be.builder;
 
-import com.bi.idp.be.filter.UsersGridFilter;
+import com.bi.idp.be.model.filter.UsersGridFilter;
 import com.bi.idp.be.model.SearchCriteria;
 import com.bi.idp.be.model.user.User;
 import com.bi.idp.be.model.user.UserSpecification;

@@ -1,5 +1,7 @@
 package com.bi.idp.be.model.user;
 
+import com.bi.idp.be.model.Image;
+import com.bi.idp.be.model.Settings;
 import com.bi.idp.be.model.role.Role;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -55,6 +57,32 @@ public class User implements Serializable {
     )
     private Set<Role> roles;
 
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "settings_id", referencedColumnName = "id")
+    private Settings settings;
+
+    public Settings getSettings() {
+        return settings;
+    }
+
+    public void setSettings(Settings settings) {
+        this.settings = settings;
+    }
+
+    @Column(name = "address_street")
+    private String street;
+
+    @Column(name = "address_city")
+    private String city;
+
+    @Column(name = "address_zip_code")
+    private String zipCode;
+
+    @Column(name = "address_lat")
+    private Double lat;
+
+    @Column(name = "address_lng")
+    private Double lng;
 
     @CreationTimestamp
     @Column(name = "created_at")
@@ -63,6 +91,18 @@ public class User implements Serializable {
     @UpdateTimestamp
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+
+    @OneToOne(cascade = CascadeType.ALL)
+    @PrimaryKeyJoinColumn
+    private Image image;
+
+    public Image getImage() {
+        return image;
+    }
+
+    public void setImage(Image image) {
+        this.image = image;
+    }
 
     public Long getId() {
         return id;
@@ -128,6 +168,46 @@ public class User implements Serializable {
         this.roles = roles;
     }
 
+    public String getStreet() {
+        return street;
+    }
+
+    public void setStreet(String street) {
+        this.street = street;
+    }
+
+    public String getCity() {
+        return city;
+    }
+
+    public void setCity(String city) {
+        this.city = city;
+    }
+
+    public String getZipCode() {
+        return zipCode;
+    }
+
+    public void setZipCode(String zipCode) {
+        this.zipCode = zipCode;
+    }
+
+    public Double getLat() {
+        return lat;
+    }
+
+    public void setLat(Double lat) {
+        this.lat = lat;
+    }
+
+    public Double getLng() {
+        return lng;
+    }
+
+    public void setLng(Double lng) {
+        this.lng = lng;
+    }
+
     public LocalDateTime getCreatedAt() {
         return createdAt;
     }
@@ -166,14 +246,21 @@ public class User implements Serializable {
                 Objects.equals(age, user.age) &&
                 Objects.equals(passwordHash, user.passwordHash) &&
                 Objects.equals(roles, user.roles) &&
+                Objects.equals(settings, user.settings) &&
+                Objects.equals(street, user.street) &&
+                Objects.equals(city, user.city) &&
+                Objects.equals(zipCode, user.zipCode) &&
+                Objects.equals(lat, user.lat) &&
+                Objects.equals(lng, user.lng) &&
                 Objects.equals(createdAt, user.createdAt) &&
-                Objects.equals(updatedAt, user.updatedAt);
+                Objects.equals(updatedAt, user.updatedAt) &&
+                Objects.equals(image, user.image);
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(id, firstName, lastName, login, email, age, passwordHash, isDeleted,
-                roles, createdAt, updatedAt);
+                roles, settings, street, city, zipCode, lat, lng, createdAt, updatedAt, image);
     }
 
     @Override
@@ -188,8 +275,15 @@ public class User implements Serializable {
                 ", passwordHash='" + passwordHash + '\'' +
                 ", isDeleted=" + isDeleted +
                 ", roles=" + roles +
+                ", settings=" + settings +
+                ", street='" + street + '\'' +
+                ", city='" + city + '\'' +
+                ", zipCode='" + zipCode + '\'' +
+                ", lat=" + lat +
+                ", lng=" + lng +
                 ", createdAt=" + createdAt +
                 ", updatedAt=" + updatedAt +
+                ", image=" + image +
                 '}';
     }
 }

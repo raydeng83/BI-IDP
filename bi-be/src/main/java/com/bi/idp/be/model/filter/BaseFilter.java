@@ -1,4 +1,4 @@
-package com.bi.idp.be.filter;
+package com.bi.idp.be.model.filter;
 
 public class BaseFilter {
     public BaseFilter() { }

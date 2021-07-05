@@ -1,8 +1,8 @@
 package com.bi.idp.be.service;
 
-import com.bi.idp.be.exception.user.UserNotFoundException;
 import com.bi.idp.be.model.role.Role;
 import com.bi.idp.be.model.user.User;
+import com.bi.idp.be.exception.user.UserNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;

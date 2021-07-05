@@ -1,5 +1,7 @@
 package com.bi.idp.be.controller;
 
+import com.bi.idp.be.model.Settings;
+
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.util.Objects;
@@ -9,14 +11,19 @@ public class UserDTO {
 
     private Long id;
 
+    @NotEmpty
+    @NotNull
     private String login;
 
+    @NotEmpty
+    @NotNull
     private String email;
 
     private String firstName;
     private String lastName;
     private Integer age;
     private Set<String> roles;
+    private Settings settings;
     private String imageBase64;
 
     public UserDTO() { }
@@ -42,6 +49,13 @@ public class UserDTO {
         this.imageBase64 = imageBase64;
     }
 
+    public Settings getSettings() {
+        return settings;
+    }
+
+    public void setSettings(Settings settings) {
+        this.settings = settings;
+    }
 
     public String getFirstName() {
         return firstName;
@@ -83,7 +97,6 @@ public class UserDTO {
         this.age = age;
     }
 
-
     public Set<String> getRoles() {
         return roles;
     }
@@ -104,12 +117,13 @@ public class UserDTO {
                 Objects.equals(lastName, userDTO.lastName) &&
                 Objects.equals(age, userDTO.age) &&
                 Objects.equals(roles, userDTO.roles) &&
+                Objects.equals(settings, userDTO.settings) &&
                 Objects.equals(imageBase64, userDTO.imageBase64);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, login, email, firstName, lastName, age,  roles,  imageBase64);
+        return Objects.hash(id, login, email, firstName, lastName, age, roles, settings, imageBase64);
     }
 
     @Override
@@ -122,7 +136,9 @@ public class UserDTO {
                 ", lastName='" + lastName + '\'' +
                 ", age=" + age +
                 ", roles=" + roles +
+                ", settings=" + settings +
                 ", imageBase64='" + imageBase64 + '\'' +
                 '}';
     }
 }
+

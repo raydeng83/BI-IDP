@@ -1,17 +1,21 @@
 package com.bi.idp.be.service;
 
 import com.bi.idp.be.builder.PageableBuilder;
+import com.bi.idp.be.builder.UserSpecificationBuilder;
 import com.bi.idp.be.config.user.UserContextHolder;
 import com.bi.idp.be.controller.UserDTO;
 import com.bi.idp.be.dto.SignUpDTO;
 import com.bi.idp.be.exception.auth.PasswordsDontMatchException;
+import com.bi.idp.be.exception.auth.TokenValidationException;
 import com.bi.idp.be.exception.auth.UserAlreadyExistsHttpException;
 import com.bi.idp.be.exception.auth.UserNotFoundHttpException;
+import com.bi.idp.be.exception.user.AccessTokenNotFoundHttpException;
 import com.bi.idp.be.exception.user.UserAlreadyExistsException;
 import com.bi.idp.be.exception.user.UserNotFoundException;
-import com.bi.idp.be.model.ChangePasswordRequest;
-import com.bi.idp.be.model.Tokens;
+import com.bi.idp.be.model.*;
+import com.bi.idp.be.model.filter.UsersGridFilter;
 import com.bi.idp.be.model.user.User;
+import com.bi.idp.be.repository.ImageRepository;
 import com.bi.idp.be.repository.UserRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,6 +41,8 @@ public class UserService {
     private PasswordEncoder passwordEncoder;
     private ModelMapper modelMapper;
     private RoleService roleService;
+    private ImageRepository imageRepository;
+    private SettingsService settingsService;
     private AuthenticationTokenService authenticationTokenService;
     private PageableBuilder pageableBuilder;
 
@@ -53,14 +59,18 @@ public class UserService {
     public UserService(UserRepository userRepository,
                        PasswordEncoder passwordEncoder,
                        ModelMapper modelMapper,
+                       SettingsService settingsService,
                        RoleService roleService,
+                       ImageRepository imageRepository,
                        AuthenticationTokenService authenticationTokenService,
                        PageableBuilder pageableBuilder) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.modelMapper = modelMapper;
+        this.settingsService = settingsService;
         this.authenticationTokenService = authenticationTokenService;
         this.roleService = roleService;
+        this.imageRepository = imageRepository;
         this.pageableBuilder = pageableBuilder;
     }
 
@@ -82,6 +92,8 @@ public class UserService {
         }
 
         User user = signUpUser(signUpDTO);
+
+        imageRepository.save(user.getImage());
 
         return userRepository.save(user);
     }
@@ -125,6 +137,7 @@ public class UserService {
 
     public UserDTO getCurrentUser() {
         User user = UserContextHolder.getUser();
+        user.setSettings(settingsService.getSettingsByUserId(user.getId()));
 
         return modelMapper.map(user, UserDTO.class);
     }
@@ -154,8 +167,10 @@ public class UserService {
             // In current version password and role are default
             user.setPasswordHash(encodePassword("testPass"));
             user.setRoles(new HashSet<>(Collections.singletonList(roleService.getDefaultRole())));
+            user.setImage(new Image());
             userDTO.setImageBase64(defaultImage);
 
+            imageRepository.save(user.getImage());
             userRepository.save(user);
 
             return modelMapper.map(user, UserDTO.class);
@@ -164,9 +179,19 @@ public class UserService {
         }
     }
 
+    private Image convertBaseStringToImage(String baseString) {
+        Image userImage = new Image();
+        byte[] decodedString = Base64.getDecoder().decode(baseString.getBytes(StandardCharsets.UTF_8));
+        userImage.setImageBytes(decodedString);
+        return userImage;
+    }
+
     private UserDTO updateUser(Long id, UserDTO userDTO) throws UserAlreadyExistsException {
         User existingUser = userRepository.findById(id).
-                orElseThrow(() -> new UserNotFoundHttpException("User with id: " + id + " not found", HttpStatus.NOT_FOUND));
+                orElseThrow(() -> new UserNotFoundHttpException(
+                        "User with id: " + id + " not found", HttpStatus.NOT_FOUND)
+                );
+
 
         User updatedUser = modelMapper.map(userDTO, User.class);
         String updatedUserEmail = updatedUser.getEmail();
@@ -179,6 +204,7 @@ public class UserService {
         updatedUser.setPasswordHash(existingUser.getPasswordHash());
         // Current version doesn't update roles
         updatedUser.setRoles(existingUser.getRoles());
+        updatedUser.setImage(existingUser.getImage());
         userRepository.save(updatedUser);
 
         return modelMapper.map(updatedUser, UserDTO.class);
@@ -192,6 +218,9 @@ public class UserService {
         user.setPasswordHash(encodedPassword);
         user.setAge(DEFAULT_AGE);
         user.setRoles(new HashSet<>(Collections.singletonList(roleService.getDefaultRole())));
+        //Set default settings and image
+        user.setSettings(new Settings("cosmic"));
+        user.setImage(new Image());
 
         return user;
     }
@@ -200,4 +229,68 @@ public class UserService {
         return passwordEncoder.encode(password);
     }
 
+    public Image getImageById(Long id, String token) {
+        try {
+            authenticationTokenService.createToken(token);
+        } catch (TokenValidationException e) {
+            throw new AccessTokenNotFoundHttpException("Access token wasn't found", HttpStatus.NOT_FOUND);
+        }
+
+        Image existingImage = imageRepository
+                .findById(id)
+                .orElseThrow(
+                        () -> new RuntimeException("image is not exist")
+                );
+        if (existingImage.getImageBytes() == null) {
+            existingImage = convertBaseStringToImage(defaultImage);
+            existingImage.setId(id);
+        }
+        return existingImage;
+    }
+
+    public Image updateUserImageById(Long id, String baseString) {
+        imageRepository.findById(id).
+                orElseThrow(() -> new RuntimeException("image is not exist"));
+        Image existingImage;
+        if (baseString != null) {
+            existingImage = convertBaseStringToImage(baseString);
+        } else {
+            existingImage = new Image();
+        }
+        existingImage.setId(id);
+
+        imageRepository.save(existingImage);
+
+        return existingImage;
+    }
+
+    private List<UserDTO> mapOrdersToOrderDTO(List<User> orders) {
+        return orders.stream().map(order -> {
+            UserDTO dto = modelMapper.map(order, UserDTO.class);
+//            if (dto.getAddress() == null) {
+//                dto.setAddress(new AddressDTO());
+//            }
+            return dto;
+        }).collect(Collectors.toList());
+    }
+
+    private GridData<UserDTO> parsePageToGridData(Page<User> orderPages) {
+        GridData<UserDTO> gridData = new GridData<>();
+        List<User> orderList = orderPages.getContent();
+        long totalCount = orderPages.getTotalElements();
+        gridData.setItems(mapOrdersToOrderDTO(orderList));
+        gridData.setTotalCount(totalCount);
+        return gridData;
+    }
+
+    public GridData<UserDTO> getDataForGrid(UsersGridFilter filter) {
+        UserSpecificationBuilder specificationBuilder = new UserSpecificationBuilder();
+
+        Pageable paginationAndSort = pageableBuilder.build(filter);
+        Optional<Specification<User>> optionalSpec = specificationBuilder.build(filter);
+        Page<User> orderPages = optionalSpec
+                .map(userSpecification -> userRepository.findAll(userSpecification, paginationAndSort))
+                .orElseGet(() -> userRepository.findAll(paginationAndSort));
+        return parsePageToGridData(orderPages);
+    }
 }
