@@ -1,16 +1,16 @@
 package com.bi.idp.be.model;
 
-import com.bi.idp.be.model.user.User;
+import com.bi.idp.be.model.administrator.AdminAccount;
 
 public class ChangePasswordRequest {
-    private User user;
+    private AdminAccount user;
     private String password;
 
-    public User getUser() {
+    public AdminAccount getUser() {
         return user;
     }
 
-    public void setUser(User user) {
+    public void setUser(AdminAccount user) {
         this.user = user;
     }
 

@@ -9,7 +9,7 @@ import com.bi.idp.be.exception.auth.UserNotFoundHttpException;
 import com.bi.idp.be.exception.user.UserAlreadyExistsException;
 import com.bi.idp.be.exception.user.UserNotFoundException;
 import com.bi.idp.be.model.Tokens;
-import com.bi.idp.be.model.user.User;
+import com.bi.idp.be.model.administrator.AdminAccount;
 import io.jsonwebtoken.JwtException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -40,7 +40,7 @@ public class AuthService {
 
     public Tokens register(SignUpDTO signUpDTO) throws UserAlreadyExistsHttpException {
         try {
-            User user = userService.register(signUpDTO);
+            AdminAccount user = userService.register(signUpDTO);
             return createToken(user);
         } catch (UserAlreadyExistsException exception) {
             throw new UserAlreadyExistsHttpException();
@@ -53,7 +53,7 @@ public class AuthService {
             BundleUserDetailsService.BundleUserDetails userDetails =
                     (BundleUserDetailsService.BundleUserDetails) authenticationManager
                             .authenticate(authentication).getPrincipal();
-            User user = userDetails.getUser();
+            AdminAccount user = userDetails.getUser();
             user.setSettings(settingsService.getSettingsByUserId(user.getId()));
             return createToken(user);
         } catch (AuthenticationException exception) {
@@ -64,7 +64,7 @@ public class AuthService {
     public Tokens refreshToken(RefreshTokenDTO refreshTokenDTO) throws InvalidTokenHttpException {
         try {
             String email = tokenService.getEmailFromRefreshToken(refreshTokenDTO.getTokens().getRefreshToken());
-            User user = userService.findByEmail(email);
+            AdminAccount user = userService.findByEmail(email);
             return createToken(user);
         } catch (JwtException | UserNotFoundException e) {
             throw new InvalidTokenHttpException();
@@ -75,7 +75,7 @@ public class AuthService {
         return new UsernamePasswordAuthenticationToken(loginDTO.getEmail(), loginDTO.getPassword());
     }
 
-    private Tokens createToken(User user) {
+    private Tokens createToken(AdminAccount user) {
         return tokenService.createToken(user);
     }
 

@@ -1,7 +1,7 @@
 package com.bi.idp.be.service;
 
 import com.bi.idp.be.model.role.Role;
-import com.bi.idp.be.model.user.User;
+import com.bi.idp.be.model.administrator.AdminAccount;
 import com.bi.idp.be.exception.user.UserNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
@@ -28,7 +28,7 @@ public class BundleUserDetailsService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         try {
-            User user = userService.findByEmail(email);
+            AdminAccount user = userService.findByEmail(email);
             return new BundleUserDetails(user, getAuthorities(user.getRoles()));
         } catch (UserNotFoundException exception) {
             throw new UsernameNotFoundException("Username: " + email + " not found");
@@ -51,10 +51,10 @@ public class BundleUserDetailsService implements UserDetailsService {
 
         private static final long serialVersionUID = -3542337090559589236L;
 
-        private User user;
+        private AdminAccount user;
         private List<GrantedAuthority> authorities;
 
-        BundleUserDetails(User user, List<GrantedAuthority> authorities) {
+        BundleUserDetails(AdminAccount user, List<GrantedAuthority> authorities) {
             this.user = user;
             this.authorities = authorities;
         }
@@ -94,7 +94,7 @@ public class BundleUserDetailsService implements UserDetailsService {
             return true;
         }
 
-        public User getUser() {
+        public AdminAccount getUser() {
             return user;
         }
     }

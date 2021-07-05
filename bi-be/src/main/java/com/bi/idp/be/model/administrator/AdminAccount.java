@@ -1,4 +1,4 @@
-package com.bi.idp.be.model.user;
+package com.bi.idp.be.model.administrator;
 
 import com.bi.idp.be.model.Image;
 import com.bi.idp.be.model.Settings;
@@ -14,12 +14,11 @@ import java.util.Objects;
 import java.util.Set;
 
 @Entity
-@Table(name = "user")
-public class User implements Serializable {
+public class AdminAccount implements Serializable {
 
     private static final long serialVersionUID = -4214325494311301431L;
 
-    public User() { }
+    public AdminAccount() { }
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -51,8 +50,8 @@ public class User implements Serializable {
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
-            name = "user_roles",
-            joinColumns = {@JoinColumn(name = "user_id")},
+            name = "administrator_roles",
+            joinColumns = {@JoinColumn(name = "administrator_id")},
             inverseJoinColumns = {@JoinColumn(name = "role_id")}
     )
     private Set<Role> roles;
@@ -236,25 +235,25 @@ public class User implements Serializable {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        User user = (User) o;
-        return isDeleted == user.isDeleted &&
-                Objects.equals(id, user.id) &&
-                Objects.equals(firstName, user.firstName) &&
-                Objects.equals(lastName, user.lastName) &&
-                Objects.equals(login, user.login) &&
-                Objects.equals(email, user.email) &&
-                Objects.equals(age, user.age) &&
-                Objects.equals(passwordHash, user.passwordHash) &&
-                Objects.equals(roles, user.roles) &&
-                Objects.equals(settings, user.settings) &&
-                Objects.equals(street, user.street) &&
-                Objects.equals(city, user.city) &&
-                Objects.equals(zipCode, user.zipCode) &&
-                Objects.equals(lat, user.lat) &&
-                Objects.equals(lng, user.lng) &&
-                Objects.equals(createdAt, user.createdAt) &&
-                Objects.equals(updatedAt, user.updatedAt) &&
-                Objects.equals(image, user.image);
+        AdminAccount admin = (AdminAccount) o;
+        return isDeleted == admin.isDeleted &&
+                Objects.equals(id, admin.id) &&
+                Objects.equals(firstName, admin.firstName) &&
+                Objects.equals(lastName, admin.lastName) &&
+                Objects.equals(login, admin.login) &&
+                Objects.equals(email, admin.email) &&
+                Objects.equals(age, admin.age) &&
+                Objects.equals(passwordHash, admin.passwordHash) &&
+                Objects.equals(roles, admin.roles) &&
+                Objects.equals(settings, admin.settings) &&
+                Objects.equals(street, admin.street) &&
+                Objects.equals(city, admin.city) &&
+                Objects.equals(zipCode, admin.zipCode) &&
+                Objects.equals(lat, admin.lat) &&
+                Objects.equals(lng, admin.lng) &&
+                Objects.equals(createdAt, admin.createdAt) &&
+                Objects.equals(updatedAt, admin.updatedAt) &&
+                Objects.equals(image, admin.image);
     }
 
     @Override

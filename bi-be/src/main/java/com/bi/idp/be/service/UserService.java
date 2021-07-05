@@ -14,7 +14,7 @@ import com.bi.idp.be.exception.user.UserAlreadyExistsException;
 import com.bi.idp.be.exception.user.UserNotFoundException;
 import com.bi.idp.be.model.*;
 import com.bi.idp.be.model.filter.UsersGridFilter;
-import com.bi.idp.be.model.user.User;
+import com.bi.idp.be.model.administrator.AdminAccount;
 import com.bi.idp.be.repository.ImageRepository;
 import com.bi.idp.be.repository.UserRepository;
 import org.modelmapper.ModelMapper;
@@ -74,13 +74,13 @@ public class UserService {
         this.pageableBuilder = pageableBuilder;
     }
 
-    public User findByEmail(String email) throws UserNotFoundException {
+    public AdminAccount findByEmail(String email) throws UserNotFoundException {
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new UserNotFoundException("User with email: " + email + " not found"));
     }
 
     @Transactional
-    public User register(SignUpDTO signUpDTO) throws UserAlreadyExistsException {
+    public AdminAccount register(SignUpDTO signUpDTO) throws UserAlreadyExistsException {
         if (!signUpDTO.getPassword().equals(signUpDTO.getConfirmPassword())) {
             throw new PasswordsDontMatchException();
         }
@@ -91,7 +91,7 @@ public class UserService {
             throw new UserAlreadyExistsException(email);
         }
 
-        User user = signUpUser(signUpDTO);
+        AdminAccount user = signUpUser(signUpDTO);
 
         imageRepository.save(user.getImage());
 
@@ -100,7 +100,7 @@ public class UserService {
 
     @Transactional
     public void changePassword(ChangePasswordRequest changePasswordRequest) {
-        User user = changePasswordRequest.getUser();
+        AdminAccount user = changePasswordRequest.getUser();
 
         String encodedPassword = encodePassword(changePasswordRequest.getPassword());
         user.setPasswordHash(encodedPassword);
@@ -109,7 +109,7 @@ public class UserService {
     }
 
     public UserDTO getUserById(Long id) {
-        User existingUser = userRepository.findById(id).orElseThrow(
+        AdminAccount existingUser = userRepository.findById(id).orElseThrow(
                 () -> new UserNotFoundHttpException("User with id: " + id + " not found", HttpStatus.NOT_FOUND)
         );
 
@@ -136,7 +136,7 @@ public class UserService {
     }
 
     public UserDTO getCurrentUser() {
-        User user = UserContextHolder.getUser();
+        AdminAccount user = UserContextHolder.getUser();
         user.setSettings(settingsService.getSettingsByUserId(user.getId()));
 
         return modelMapper.map(user, UserDTO.class);
@@ -144,10 +144,10 @@ public class UserService {
 
     public Tokens updateCurrentUser(UserDTO userDTO) {
         try {
-            User user = UserContextHolder.getUser();
+            AdminAccount user = UserContextHolder.getUser();
             Long id = user.getId();
             UserDTO updatedUser = updateUser(id, userDTO);
-            user = modelMapper.map(updatedUser, User.class);
+            user = modelMapper.map(updatedUser, AdminAccount.class);
             return tokenService.createToken(user);
         } catch (UserAlreadyExistsException exception) {
             throw new UserAlreadyExistsHttpException();
@@ -157,7 +157,7 @@ public class UserService {
     @Transactional
     public UserDTO createUser(UserDTO userDTO) {
         try {
-            User user = modelMapper.map(userDTO, User.class);
+            AdminAccount user = modelMapper.map(userDTO, AdminAccount.class);
 
             String email = user.getEmail();
             if (userRepository.findByEmail(email).isPresent()) {
@@ -187,13 +187,13 @@ public class UserService {
     }
 
     private UserDTO updateUser(Long id, UserDTO userDTO) throws UserAlreadyExistsException {
-        User existingUser = userRepository.findById(id).
+        AdminAccount existingUser = userRepository.findById(id).
                 orElseThrow(() -> new UserNotFoundHttpException(
                         "User with id: " + id + " not found", HttpStatus.NOT_FOUND)
                 );
 
 
-        User updatedUser = modelMapper.map(userDTO, User.class);
+        AdminAccount updatedUser = modelMapper.map(userDTO, AdminAccount.class);
         String updatedUserEmail = updatedUser.getEmail();
         if (!existingUser.getEmail().equals(updatedUserEmail)
                 && userRepository.findByEmail(updatedUserEmail).isPresent()) {
@@ -210,8 +210,8 @@ public class UserService {
         return modelMapper.map(updatedUser, UserDTO.class);
     }
 
-    private User signUpUser(SignUpDTO signUpDTO) {
-        User user = new User();
+    private AdminAccount signUpUser(SignUpDTO signUpDTO) {
+        AdminAccount user = new AdminAccount();
         user.setEmail(signUpDTO.getEmail());
         user.setLogin(signUpDTO.getFullName());
         String encodedPassword = encodePassword(signUpDTO.getPassword());
@@ -264,7 +264,7 @@ public class UserService {
         return existingImage;
     }
 
-    private List<UserDTO> mapOrdersToOrderDTO(List<User> orders) {
+    private List<UserDTO> mapOrdersToOrderDTO(List<AdminAccount> orders) {
         return orders.stream().map(order -> {
             UserDTO dto = modelMapper.map(order, UserDTO.class);
 //            if (dto.getAddress() == null) {
@@ -274,9 +274,9 @@ public class UserService {
         }).collect(Collectors.toList());
     }
 
-    private GridData<UserDTO> parsePageToGridData(Page<User> orderPages) {
+    private GridData<UserDTO> parsePageToGridData(Page<AdminAccount> orderPages) {
         GridData<UserDTO> gridData = new GridData<>();
-        List<User> orderList = orderPages.getContent();
+        List<AdminAccount> orderList = orderPages.getContent();
         long totalCount = orderPages.getTotalElements();
         gridData.setItems(mapOrdersToOrderDTO(orderList));
         gridData.setTotalCount(totalCount);
@@ -287,8 +287,8 @@ public class UserService {
         UserSpecificationBuilder specificationBuilder = new UserSpecificationBuilder();
 
         Pageable paginationAndSort = pageableBuilder.build(filter);
-        Optional<Specification<User>> optionalSpec = specificationBuilder.build(filter);
-        Page<User> orderPages = optionalSpec
+        Optional<Specification<AdminAccount>> optionalSpec = specificationBuilder.build(filter);
+        Page<AdminAccount> orderPages = optionalSpec
                 .map(userSpecification -> userRepository.findAll(userSpecification, paginationAndSort))
                 .orElseGet(() -> userRepository.findAll(paginationAndSort));
         return parsePageToGridData(orderPages);

@@ -6,7 +6,7 @@ import com.bi.idp.be.exception.auth.CantSendEmailHttpException;
 import com.bi.idp.be.exception.auth.IncorrectEmailHttpException;
 import com.bi.idp.be.exception.user.UserNotFoundException;
 import com.bi.idp.be.model.RestorePassword;
-import com.bi.idp.be.model.user.User;
+import com.bi.idp.be.model.administrator.AdminAccount;
 import com.bi.idp.be.repository.RestorePasswordTokenRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -45,7 +45,7 @@ public class RequestPasswordService {
     private Duration resetPasswordTokenExpiration;
 
     public void requestPassword(RequestPasswordDTO requestPasswordDTO) {
-        User user;
+        AdminAccount user;
 
         try {
             user = userService.findByEmail(requestPasswordDTO.getEmail());

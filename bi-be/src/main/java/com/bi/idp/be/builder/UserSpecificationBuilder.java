@@ -2,8 +2,8 @@ package com.bi.idp.be.builder;
 
 import com.bi.idp.be.model.filter.UsersGridFilter;
 import com.bi.idp.be.model.SearchCriteria;
-import com.bi.idp.be.model.user.User;
-import com.bi.idp.be.model.user.UserSpecification;
+import com.bi.idp.be.model.administrator.AdminAccount;
+import com.bi.idp.be.model.administrator.AdminAccountSpecification;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
 
@@ -52,17 +52,17 @@ public class UserSpecificationBuilder {
         }
     }
 
-    public Optional<Specification<User>> build(UsersGridFilter filter) {
+    public Optional<Specification<AdminAccount>> build(UsersGridFilter filter) {
         initParams(filter);
 
         if (params.size() == 0) {
             return Optional.empty();
         }
 
-        Specification<User> result = new UserSpecification(params.get(0));
+        Specification<AdminAccount> result = new AdminAccountSpecification(params.get(0));
 
         for (int i = 1; i < params.size(); i++) {
-            result = Specification.where(result).and(new UserSpecification(params.get(i)));
+            result = Specification.where(result).and(new AdminAccountSpecification(params.get(i)));
         }
 
         return Optional.of(result);

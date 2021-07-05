@@ -5,7 +5,7 @@ import com.bi.idp.be.config.auth.Properties;
 import com.bi.idp.be.exception.auth.AuthenticationException;
 import com.bi.idp.be.model.Tokens;
 import com.bi.idp.be.model.role.Role;
-import com.bi.idp.be.model.user.User;
+import com.bi.idp.be.model.administrator.AdminAccount;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
@@ -50,7 +50,7 @@ public class TokenService {
         refreshTokenValidityInMilliseconds = properties.getRefreshTokenValidityInMilliseconds();
     }
 
-    public Tokens createToken(User user) {
+    public Tokens createToken(AdminAccount user) {
         Tokens token = new Tokens();
         long expiresIn = expiration(accessTokenValidityInMilliseconds);
 
@@ -83,13 +83,13 @@ public class TokenService {
         return authenticationTokenService.createToken(bearerToken.substring(bearer.length()));
     }
 
-    private String createAccessToken(User user) {
+    private String createAccessToken(AdminAccount user) {
         long expiresIn = expiration(accessTokenValidityInMilliseconds);
 
         return createToken(user, expiresIn, accessTokenSecretKey);
     }
 
-    private String createRefreshToken(User user) {
+    private String createRefreshToken(AdminAccount user) {
         long expiresIn = expiration(refreshTokenValidityInMilliseconds);
 
         return createToken(user, expiresIn, refreshTokenSecretKey);
@@ -99,7 +99,7 @@ public class TokenService {
         return roles.stream().map(Role::getName).collect(toList());
     }
 
-    private String createToken(User user, long expiresIn, String key) {
+    private String createToken(AdminAccount user, long expiresIn, String key) {
         Claims claims = Jwts.claims();
 
         claims.setSubject(user.getEmail());

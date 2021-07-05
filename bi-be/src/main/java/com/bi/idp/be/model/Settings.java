@@ -1,7 +1,7 @@
 package com.bi.idp.be.model;
 
 
-import com.bi.idp.be.model.user.User;
+import com.bi.idp.be.model.administrator.AdminAccount;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -21,7 +21,7 @@ public class Settings implements Serializable {
     private String themeName;
 
     @OneToOne(mappedBy = "settings")
-    private User user;
+    private AdminAccount user;
 
     public Settings(String themeName) {
         this.themeName = themeName;

@@ -4,7 +4,7 @@ import com.bi.idp.be.config.user.UserContextHolder;
 import com.bi.idp.be.dto.SettingsDTO;
 import com.bi.idp.be.exception.settings.SettingsNotFoundHttpException;
 import com.bi.idp.be.model.Settings;
-import com.bi.idp.be.model.user.User;
+import com.bi.idp.be.model.administrator.AdminAccount;
 import com.bi.idp.be.repository.SettingsRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,13 +30,13 @@ public class SettingsService {
     }
 
     public SettingsDTO getCurrentSettings() {
-        User currentUser = UserContextHolder.getUser();
+        AdminAccount currentUser = UserContextHolder.getUser();
         Settings settings = getSettingsByUserId(currentUser.getId());
         return modelMapper.map(settings, SettingsDTO.class);
     }
 
     public SettingsDTO updateCurrentSettings(SettingsDTO settingsDTO) {
-        User user = UserContextHolder.getUser();
+        AdminAccount user = UserContextHolder.getUser();
         Long id = user.getId();
 
         return updateSettingsByUserId(id, settingsDTO);

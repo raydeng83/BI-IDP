@@ -1,6 +1,6 @@
 package com.bi.idp.be.model;
 
-import com.bi.idp.be.model.user.User;
+import com.bi.idp.be.model.administrator.AdminAccount;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -15,9 +15,9 @@ public class RestorePassword {
     @Column(nullable = false, unique = true)
     private String token;
 
-    @OneToOne(targetEntity = User.class, fetch = FetchType.EAGER)
+    @OneToOne(targetEntity = AdminAccount.class, fetch = FetchType.EAGER)
     @JoinColumn(nullable = false, name = "user_id")
-    private User user;
+    private AdminAccount user;
 
     @Column(nullable = false)
     private LocalDateTime expiresIn;
@@ -38,11 +38,11 @@ public class RestorePassword {
         this.token = token;
     }
 
-    public User getUser() {
+    public AdminAccount getUser() {
         return user;
     }
 
-    public void setUser(User user) {
+    public void setUser(AdminAccount user) {
         this.user = user;
     }
 
