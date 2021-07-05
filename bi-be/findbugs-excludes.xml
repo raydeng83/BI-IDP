@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FindBugsFilter xmlns="http://findbugs.sourceforge.net/filter/3.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                xsi:schemaLocation="http://findbugs.sourceforge.net/filter/3.0.0 https://raw.githubusercontent.com/findbugsproject/findbugs/master/findbugs/etc/findbugsfilter.xsd">
+
+    <Match>
+        <Bug pattern="EI_EXPOSE_REP,EI_EXPOSE_REP2"/>
+    </Match>
+
+</FindBugsFilter>
